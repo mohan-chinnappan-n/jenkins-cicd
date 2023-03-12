@@ -3,7 +3,7 @@ pipeline {
         node { label 'docker-node-sfdx' }
     }
     triggers {
-            pollSCM: '*/5 * * * *'
+            pollSCM '*/5 * * * *'
     }
      
     
