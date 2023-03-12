@@ -14,8 +14,6 @@ pipeline {
         SERVER_KEY=crendentials('cb689b37-ff89-490c-87b0-da6983e03854')    
     }
      
-   withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'server_key_file')])
- 
     stages {
 
 
@@ -27,6 +25,7 @@ pipeline {
                     cd py
                     pip3 install -r requirements.txt
                     echo ${SF_USERNAME}
+                    echo ${SERVER_KEY}
                 '''
             }
         }
