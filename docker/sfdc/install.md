@@ -173,5 +173,38 @@ Finished: SUCCESS
 ```
 
 
+## sfdx XML project
+
+```
+Started by user Mohan Chinnappan
+Running as SYSTEM
+Building remotely on docker-node-sfdx-00006t9wamykj on docker (docker-node-sfdx) in workspace /home/jenkins/workspace/sfdc-project-xml
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/mohan-chinnappan-n/jenkins-cicd
+ > git init /home/jenkins/workspace/sfdc-project-xml # timeout=10
+Fetching upstream changes from https://github.com/mohan-chinnappan-n/jenkins-cicd
+ > git --version # timeout=10
+ > git --version # 'git version 2.38.4'
+ > git fetch --tags --force --progress -- https://github.com/mohan-chinnappan-n/jenkins-cicd +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/mohan-chinnappan-n/jenkins-cicd # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 12763086762b99f46569a109d06c03a4e8cfd65d (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 12763086762b99f46569a109d06c03a4e8cfd65d # timeout=10
+Commit message: "xml added"
+First time build. Skipping changelog.
+[sfdc-project-xml] $ /bin/sh -xe /tmp/jenkins13699243142254465595.sh
++ sfdx mohanc:xml:transform -i xml/Admin.profile-meta.xml -m Profile
+=== Writing the output into file : xml/Admin.profile-meta.xml.html ===
+Finished: SUCCESS
+
+```
+
+
+
 
 
