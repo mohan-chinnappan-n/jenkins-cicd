@@ -1,0 +1,37 @@
+pipeline {
+    agent { 
+        node {
+            label 'docker-node-sfdx'
+            }
+        triggers {
+            pollSCM: "*/5 * * * *"
+        }
+      }
+    
+    stages {
+        stage('CodeScan') {
+            steps {
+                echo "Scanning the code with PMD.."
+                sh '''
+                echo "doing PMD  Scan..."
+                '''
+            }
+        }
+        stage('BuildCheckOnly') {
+            steps {
+                echo "Buliding with CheckOnly"
+                sh '''
+                echo "Building Checkonly..."
+                '''
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploy....'
+                sh '''
+                echo "Deploying..."
+                '''
+            }
+        }
+    }
+}
