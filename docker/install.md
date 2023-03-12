@@ -193,3 +193,315 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 
+## socat container 
+- proxy the connection between Jenkins master container and localhost
+
+```
+
+
+Jenkins Docker Plugin Configuration when running jenkins as container
+
+1) First Install Docker Plugin
+
+2) Go to Manage Jenkins -> System Configuration -> Scroll down to botton -> Add Cloud -> Docker
+
+3) If you are running jenkins as container, in the docker host uri field you have to enter unix or tcp address of the docker host. But since you are running jenkins as container, the container cant reach docker host unix port
+
+4) So we have to run another container that can mediate between docker host and jenkins container. It will publish docker host's unix port as its tcp port. Follow the instructions to create socat container https://hub.docker.com/r/alpine/socat/
+
+5)After the creating socat container, you can go back the docker configuration in jenkins and enter tcp://socat-container-ip:2375
+
+6) Test Connection should succeed now
+
+```
+```
+docker run -d --restart=always -p 127.0.0.1:2400:2375 --network jenkins -v /var/run/docker.sock:/var/run/docker.sock alpine/socat tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+```
+```
+b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4
+
+
+```
+
+```
+ docker container ls
+```
+```
+CONTAINER ID   IMAGE                           COMMAND                  CREATED              STATUS              PORTS                                              NAMES
+b643f2a82b31   alpine/socat                    "socat tcp-listen:23…"   About a minute ago   Up About a minute   127.0.0.1:2400->2375/tcp                           silly_hopper
+c5ea234eee86   myjenkins-blueocean:2.387.1-1   "/usr/bin/tini -- /u…"   3 hours ago          Up 12 minutes       0.0.0.0:8080->8080/tcp, 0.0.0.0:50000->50000/tcp   jenkins-blueocean
+58b1537f5136   docker:dind                     "dockerd-entrypoint.…"   3 hours ago          Up 3 hours          2375/tcp, 0.0.0.0:2376->2376/tcp                   jenkins-docker
+
+
+```
+
+```
+docker inspect b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4 | grep IPAddress
+```
+
+```
+"SecondaryIPAddresses": null,
+            "IPAddress": "",
+                    "IPAddress": "172.18.0.4",
+```
+
+```
+
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE                           COMMAND                  CREATED         STATUS          PORTS                                              NAMES
+b643f2a82b31   alpine/socat                    "socat tcp-listen:23…"   2 minutes ago   Up 2 minutes    127.0.0.1:2400->2375/tcp                           silly_hopper
+c5ea234eee86   myjenkins-blueocean:2.387.1-1   "/usr/bin/tini -- /u…"   3 hours ago     Up 13 minutes   0.0.0.0:8080->8080/tcp, 0.0.0.0:50000->50000/tcp   jenkins-blueocean
+58b1537f5136   docker:dind                     "dockerd-entrypoint.…"   3 hours ago     Up 3 hours      2375/tcp, 0.0.0.0:2376->2376/tcp                   jenkins-docker
+```
+
+```
+
+docker inspect  silly_hopper 
+```
+
+```json
+[
+    {
+        "Id": "b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4",
+        "Created": "2023-03-12T16:08:27.933374909Z",
+        "Path": "socat",
+        "Args": [
+            "tcp-listen:2375,fork,reuseaddr",
+            "unix-connect:/var/run/docker.sock"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 8609,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2023-03-12T16:08:28.362760818Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:f0bbf8a4f6a0e25e06fe69c284e6e0494948e8de21ef933d72732b7858da3110",
+        "ResolvConfPath": "/var/lib/docker/containers/b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4/hostname",
+        "HostsPath": "/var/lib/docker/containers/b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4/hosts",
+        "LogPath": "/var/lib/docker/containers/b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4/b643f2a82b31e1f2ac9e5261badbb65d13447b94a92eaa0bb34202a9148f39b4-json.log",
+        "Name": "/silly_hopper",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/var/run/docker.sock:/var/run/docker.sock"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "jenkins",
+            "PortBindings": {
+                "2375/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "2400"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "always",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/ac59c4bb642c204d52676ea5a3f38ab123aa55c28e7c4d32885c29798685bf6c-init/diff:/var/lib/docker/overlay2/33c335c0d0c0267bc8a0de4b181fa6a67212ef993d5b23cc2d932eccd87da979/diff:/var/lib/docker/overlay2/0b76f458f2092bfa7d73629e242e320299fb159448bf52a18647959f1637387c/diff",
+                "MergedDir": "/var/lib/docker/overlay2/ac59c4bb642c204d52676ea5a3f38ab123aa55c28e7c4d32885c29798685bf6c/merged",
+                "UpperDir": "/var/lib/docker/overlay2/ac59c4bb642c204d52676ea5a3f38ab123aa55c28e7c4d32885c29798685bf6c/diff",
+                "WorkDir": "/var/lib/docker/overlay2/ac59c4bb642c204d52676ea5a3f38ab123aa55c28e7c4d32885c29798685bf6c/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/var/run/docker.sock",
+                "Destination": "/var/run/docker.sock",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "b643f2a82b31",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "2375/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "tcp-listen:2375,fork,reuseaddr",
+                "unix-connect:/var/run/docker.sock"
+            ],
+            "Image": "alpine/socat",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "socat"
+            ],
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "a818d2616cbaced18798c777a02b95d53c16765842f392151d39272ed0e4be37",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {
+                "2375/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "2400"
+                    }
+                ]
+            },
+            "SandboxKey": "/var/run/docker/netns/a818d2616cba",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "jenkins": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": [
+                        "b643f2a82b31"
+                    ],
+                    "NetworkID": "37d113c8d79cd12a209822f0ccb12be7058b9c6ccdc62e2b298725537edd703d",
+                    "EndpointID": "08bc7021dd48b6993f51b08a0d0e9333276c64311b4487361b02c476a3a1e3f9",
+                    "Gateway": "172.18.0.1",
+                    "IPAddress": "172.18.0.4",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:ac:12:00:04",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+```
+
+### Running docker-agent-sfdx
+
+```
+ docker build -t docker-agent-sfdx .
+
+ ```
+
+
