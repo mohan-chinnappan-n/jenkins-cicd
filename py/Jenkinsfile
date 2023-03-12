@@ -5,6 +5,13 @@ pipeline {
     triggers {
             pollSCM '*/5 * * * *'
     }
+
+     environment { 
+        SF_USERNAME = 'mohan.chinnappan.n.sel2@gmail.com'
+        SF_INSTANCE_URL = 'https://login.salesforce.com'
+        SF_CONSUMER_KEY = '3MVG9vp1McGXQBYGcnDR0UfAip.JjJVJUbccWajKPlMgbFIV.C9g3FdmKaKfOYlrJ6iY4QUQKnC1F8dzu8YAz'
+        SERVER_KEY_CREDENTALS_ID='cb689b37-ff89-490c-87b0-da6983e03854'
+    }
      
     
     stages {
@@ -14,6 +21,7 @@ pipeline {
                 sh '''
                     cd py
                     pip3 install -r requirements.txt
+                    echo ${SF_USERNAME}
                 '''
             }
         }
