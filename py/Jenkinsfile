@@ -11,12 +11,16 @@ pipeline {
         SF_INSTANCE_URL = 'https://login.salesforce.com'
         SF_CONSUMER_KEY = '3MVG9vp1McGXQBYGcnDR0UfAip.JjJVJUbccWajKPlMgbFIV.C9g3FdmKaKfOYlrJ6iY4QUQKnC1F8dzu8YAz'
         SERVER_KEY_CREDENTALS_ID='cb689b37-ff89-490c-87b0-da6983e03854'
+        SERVER_KEY=crendentials('cb689b37-ff89-490c-87b0-da6983e03854')    
     }
      
    withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'server_key_file')])
  
     stages {
+
+
         stage('Prepare') {
+       
             steps {
                 echo "pip install"
                 sh '''
