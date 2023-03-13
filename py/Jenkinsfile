@@ -31,7 +31,9 @@ pipeline {
                     sfdx force:auth:jwt:grant -u  ${SF_USERNAME} -f ${server_key_file} -i ${SF_CONSUMER_KEY} 
                     sfdx force:data:soql:query --query  "SELECT Id, Name, Account.Name FROM Contact" -u  ${SF_USERNAME} 
 
-                    sfdx mohanc:org:viz -u ${SF_USERNAME}  
+                    sfdx mohanc:org:viz -u ${SF_USERNAME} 
+                    
+                    wc -l Org.json
                 '''
              }
             }
