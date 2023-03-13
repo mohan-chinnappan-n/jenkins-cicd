@@ -19,9 +19,10 @@ pipeline {
 
 
         stage('Prepare') {
-            withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'server_key_file')]) {
 
             steps {
+                withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'server_key_file')]) {
+
                 echo "pip install"
                 sh '''
                     cd py
