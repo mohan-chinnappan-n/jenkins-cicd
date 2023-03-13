@@ -13,14 +13,14 @@ pipeline {
         SERVER_KEY_CREDENTALS_ID='cb689b37-ff89-490c-87b0-da6983e03854'
         // SERVER_KEY=crendentials('cb689b37-ff89-490c-87b0-da6983e03854')    
     }
-    withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'server_key_file')]) {
 
      
     stages {
 
 
         stage('Prepare') {
-       
+            withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'server_key_file')]) {
+
             steps {
                 echo "pip install"
                 sh '''
@@ -29,7 +29,9 @@ pipeline {
                     echo ${SF_USERNAME}
                 '''
             }
+            }
         }
+        
         stage('Test') {
             steps {
                 echo "Testing it"
