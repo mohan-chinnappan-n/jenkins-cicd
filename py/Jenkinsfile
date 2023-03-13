@@ -29,7 +29,7 @@ pipeline {
                     pip3 install -r requirements.txt
                     echo ${SF_USERNAME}
                     sfdx force:auth:jwt:grant -u  ${SF_USERNAME} -f ${server_key_file} -i ${SF_CONSUMER_KEY} 
-                    sfdx force:data:query --query  "SELECT Id, Name, Account.Name FROM Contact" -u  ${SF_USERNAME} 
+                    sfdx force:data:soql:query --query  "SELECT Id, Name, Account.Name FROM Contact" -u  ${SF_USERNAME} 
                 '''
              }
             }
